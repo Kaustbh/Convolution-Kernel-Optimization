@@ -14,26 +14,6 @@ Image convolution is a fundamental operation used in computer vision and image p
 
 For an RGB image, each output pixel is calculated by applying a convolution filter independently across the three color channels.
 
-For an input image \(I\) and filter \(F\), the output pixel is computed as:
-
-\[
-O(y,x) =
-\sum_{c=0}^{2}
-\sum_{i=0}^{K-1}
-\sum_{j=0}^{K-1}
-I(c,y+i-r,x+j-r)
-F(c,i,j)
-\]
-
-where:
-
-- \(c\) = RGB channel
-- \(K\) = filter size
-- \(r\) = filter radius
-- \(I\) = input image
-- \(F\) = convolution filter
-- \(O\) = output image
-
 The project keeps the image dimensions unchanged by using zero-padding at the image boundaries.
 
 ---
@@ -56,6 +36,17 @@ All implementations perform the same convolution and produce equivalent output.
 This makes it possible to isolate the impact of CUDA optimization techniques without changing the underlying computation.
 
 ---
+
+## Example 
+
+Input:
+
+![Alt Text](images/demon-slayer.jpeg)
+
+Output:
+
+![Alt Text](output/demon-slayer.jpeg)
+
 
 # Architecture
 
