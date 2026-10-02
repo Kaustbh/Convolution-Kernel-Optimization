@@ -6,9 +6,9 @@ SOURCES = \
     main.cpp \
     preprocessor/imageloader.cpp \
     src/naive.cu \
-#     src/constant.cu \
-#     src/shared.cu \
-#     src/l2.cu
+    src/constant-memory.cu \
+    src/tiled.cu \
+    src/l2cache.cu
 
 TARGET = convolution.exe
 

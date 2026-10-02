@@ -11,7 +11,6 @@ float convolutionNaive(
 float convolutionConstant(
     const float* d_input,
     float* d_output,
-    const float* d_filter,
     int width,
     int height,
     int channels
@@ -20,7 +19,6 @@ float convolutionConstant(
 float convolutionShared(
     const float* d_input,
     float* d_output,
-    const float* d_filter,
     int width,
     int height,
     int channels
