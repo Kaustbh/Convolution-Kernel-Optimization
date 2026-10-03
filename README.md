@@ -41,11 +41,11 @@ This makes it possible to isolate the impact of CUDA optimization techniques wit
 
 Input:
 
-![Alt Text](images/demon-slayer.jpeg)
+![Alt Text](images/flower.jpg)
 
 Output:
 
-![Alt Text](output/demon-slayer.jpeg)
+![Alt Text](output/flower.jpg)
 
 
 # Architecture
