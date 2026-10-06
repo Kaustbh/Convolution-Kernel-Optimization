@@ -47,8 +47,8 @@ void printHelp(const char* program)
 int main(int argc, char* argv[])
 {   
     std::string kernel;
-    std::string imagePath = "images/demon-slayer.jpeg";
-    std::string outputPath = "output/output.png";
+    std::string imagePath = "images/3.jpg";
+    std::string outputPath = "output/3.jpg";
 
     for (int i = 1; i < argc; ++i)
     {
@@ -170,18 +170,57 @@ int main(int argc, char* argv[])
     else if (kernel == "constant")
     {
         std::cout << "\nExecuting constant kernel...\n";
+        time = convolutionConstant(input_d, output_d, width, height, channels);
     }
     else if (kernel == "shared")
     {
         std::cout << "\nExecuting shared kernel...\n";
+        time = convolutionShared(input_d, output_d, width, height, channels);
     }
     else if (kernel == "l2")
     {
         std::cout << "\nExecuting L2 kernel...\n";
+        time = convolutionL2(input_d, output_d, width, height, channels);
     }
     else if (kernel == "all")
     {
         std::cout << "\nExecuting all kernels...\n";
+
+        float naive = convolutionNaive(
+        input_d, output_d,
+        width, height, channels
+    );
+
+    float constant = convolutionConstant(
+        input_d, output_d,
+        width, height, channels
+    );
+
+    float tiled = convolutionShared(
+        input_d, output_d,
+        width, height, channels
+    );
+
+    float l2 = convolutionL2(
+        input_d, output_d,
+        width, height, channels
+    );
+
+    CUDA_CHECK(cudaFree(input_d));
+    CUDA_CHECK(cudaFree(output_d));
+
+    freeImage(image);
+
+    std::cout << "\n";
+    std::cout << "========== Benchmark ==========\n";
+    std::cout << "Naive    : " << naive << " ms\n";
+    std::cout << "Constant : " << constant << " ms\n";
+    std::cout << "Tiled    : " << tiled << " ms\n";
+    std::cout << "L2       : " << l2 << " ms\n";
+    std::cout << "===============================\n";
+
+    return 0;
+
     }
 
     float* output_h = new float[width * height];
@@ -214,14 +253,29 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < width * height; ++i)
     {
-        float normalized =
-            (output_h[i] - minVal) /
-            (maxVal - minVal);
+        // float normalized =
+        //     (output_h[i] - minVal) /
+        //     (maxVal - minVal);
 
-        outputImage[i] =
-            static_cast<unsigned char>(
-                normalized * 255.0f
-            );
+        // float normalized =
+        //     output_h[i];
+
+        // outputImage[i] =
+        //     static_cast<unsigned char>(
+        //         normalized * 255.0f
+        //     );
+
+        float val = output_h[i];
+
+    // 1. Take the absolute value to convert negative edge energy into positive highlights
+    val = std::fabs(val); 
+
+    // 2. STABILITY CLAMP: Securely lock the value between 0.0f and 1.0f 
+    if (val < 0.0f) val = 0.0f;
+    if (val > 1.0f) val = 1.0f;
+
+    // 3. Scale safely to standard 8-bit unsigned integer space
+    outputImage[i] = static_cast<unsigned char>(val * 255.0f);
     }
 
 
@@ -240,6 +294,9 @@ int main(int argc, char* argv[])
 
     std::cout << "Time required for executing the kernel\n" << time << " ms\n";
     std::cout << "Output saved to\n" << outputPath << '\n';
+
+    std::cout << "For Profiling the kernel \n";
+    std::cout << "Run: ncu --set full -o covol"<<kernel<<" convolution.exe --kernel "<<kernel;
 
 
     // --------------------------------------------------
